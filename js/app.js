@@ -13,6 +13,37 @@ const facts={
 10:['Multiples end in 0.']
 };
 
+let audioRunId=0;
+
+function numberToWords(n){
+ n=Math.trunc(Number(n));
+ if(!Number.isFinite(n)) return String(n);
+ if(n<0) return `minus ${numberToWords(-n)}`;
+ const ones=['zero','one','two','three','four','five','six','seven','eight','nine'];
+ const teens=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+ const tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+
+ if(n<10) return ones[n];
+ if(n<20) return teens[n-10];
+ if(n<100){
+   const t=Math.floor(n/10);
+   const r=n%10;
+   return r===0 ? tens[t] : `${tens[t]} ${ones[r]}`;
+ }
+ if(n<1000){
+   const h=Math.floor(n/100);
+   const r=n%100;
+   return r===0 ? `${ones[h]} hundred` : `${ones[h]} hundred ${numberToWords(r)}`;
+ }
+ return String(n);
+}
+
+function pluralizeNumberWord(word,count){
+ if(count===1) return word;
+ if(word.endsWith('x')||word.endsWith('s')) return `${word}es`;
+ return `${word}s`;
+}
+
 for(let i=2;i<=20;i++){
  let o=document.createElement('option');
  o.value=i;o.textContent='Table of '+i;
@@ -28,9 +59,16 @@ function render(table){
 
  for(let i=1;i<=max;i++){
    const d=document.createElement('div');
-   d.className='cell '+(i%table===0?'highlight':'dim');
-   if(i%table===0)d.style.background=colorFor(table);
-   d.textContent=i;
+   const isMultiple=i%table===0;
+   d.className='cell '+(isMultiple?'highlight':'dim');
+   if(isMultiple){
+     d.style.background=colorFor(table);
+     const bubble=document.createElement('span');
+     bubble.className='multiplicand-bubble';
+     bubble.textContent='×'+i/table;
+     d.appendChild(bubble);
+   }
+   d.appendChild(document.createTextNode(String(i)));
    grid.appendChild(d);
  }
 }
@@ -52,11 +90,24 @@ async function animateTable(){
 }
 
 async function audioTable(){
+ const runId=++audioRunId;
  const table=+select.value;
  for(let i=table;i<=(table<=10?100:200);i+=table){
-   speechSynthesis.speak(new SpeechSynthesisUtterance(String(i)));
+   if(runId!==audioRunId) break;
+   const count=i/table;
+   const tableWord=numberToWords(table);
+   const unit=pluralizeNumberWord(tableWord,count);
+   const verb=count===1?'is':'are';
+   const countWord=numberToWords(count);
+   const productWord=numberToWords(i);
+   speechSynthesis.speak(new SpeechSynthesisUtterance(`${countWord} ${unit} ${verb} ${productWord}.`));
    await new Promise(r=>setTimeout(r,700));
  }
+}
+
+function stopAudio(){
+ audioRunId++;
+ speechSynthesis.cancel();
 }
 
 function getBadges(){return JSON.parse(localStorage.getItem('badges')||'[]');}
@@ -100,6 +151,7 @@ function quizMode(){
 document.getElementById('visualBtn').onclick=()=>render(+select.value);
 document.getElementById('animateBtn').onclick=animateTable;
 document.getElementById('audioBtn').onclick=audioTable;
+document.getElementById('stopBtn').onclick=stopAudio;
 document.getElementById('quizBtn').onclick=quizMode;
 select.onchange=()=>render(+select.value);
 
