@@ -52,7 +52,12 @@ for(let i=2;i<=20;i++){
 
 function colorFor(t){ return colors[t] || '#2563eb'; }
 
+function setGridRows(table){
+ grid.style.setProperty('--grid-rows', table<=10 ? 10 : 20);
+}
+
 function render(table){
+ setGridRows(table);
  const max=table<=10?100:200;
  grid.innerHTML='';
  fact.textContent=(facts[table]||['Multiples occur every '+table+' numbers.'])[0];
@@ -123,6 +128,7 @@ function renderBadges(){
 
 function quizMode(){
  const table=+select.value;
+ setGridRows(table);
  const max=table<=10?100:200;
  grid.innerHTML='';
  let correct=0,total=0;
