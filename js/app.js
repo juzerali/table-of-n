@@ -52,6 +52,45 @@ for(let i=2;i<=20;i++){
 
 function colorFor(t){ return colors[t] || '#2563eb'; }
 
+function hexToHsl(hex){
+ const n=parseInt(hex.slice(1),16);
+ const r=((n>>16)&255)/255,g=((n>>8)&255)/255,b=(n&255)/255;
+ const max=Math.max(r,g,b),min=Math.min(r,g,b);
+ let h,s,l=(max+min)/2;
+ if(max===min){h=s=0;}
+ else{
+   const d=max-min;
+   s=l>0.5?d/(2-max-min):d/(max+min);
+   switch(max){
+     case r:h=((g-b)/d+(g<b?6:0))/6;break;
+     case g:h=((b-r)/d+2)/6;break;
+     case b:h=((r-g)/d+4)/6;break;
+   }
+ }
+ return [h*360,s*100,l*100];
+}
+
+function hslToHex(h,s,l){
+ s/=100;l/=100;
+ const c=(1-Math.abs(2*l-1))*s;
+ const x=c*(1-Math.abs((h/60)%2-1));
+ const m=l-c/2;
+ let r,g,b;
+ if(h<60){r=c;g=x;b=0;}
+ else if(h<120){r=x;g=c;b=0;}
+ else if(h<180){r=0;g=c;b=x;}
+ else if(h<240){r=0;g=x;b=c;}
+ else if(h<300){r=x;g=0;b=c;}
+ else{r=c;g=0;b=x;}
+ const toHex=v=>Math.round((v+m)*255).toString(16).padStart(2,'0');
+ return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function contrastBorderColor(hex){
+ const [h,s,l]=hexToHsl(hex);
+ return hslToHex((h+180)%360,Math.min(s+12,92),Math.min(l+18,70));
+}
+
 function setGridRows(table){
  grid.style.setProperty('--grid-rows', table<=10 ? 10 : 20);
 }
@@ -63,23 +102,25 @@ function render(table){
  fact.textContent=(facts[table]||['Multiples occur every '+table+' numbers.'])[0];
 
  for(let i=1;i<=max;i++){
-   const wrapper=document.createElement('div');
-   wrapper.className='cell-wrapper';
-   const isMultiple=i%table===0;
    const d=document.createElement('div');
+   const isMultiple=i%table===0;
    d.className='cell '+(isMultiple?'highlight':'dim');
-   const label=document.createElement('span');
-   label.className='multiplicand-label'+(isMultiple?'':' multiplicand-label--empty');
-   label.textContent=isMultiple?'×'+i/table:'';
    if(isMultiple){
      const bg=colorFor(table);
-     d.style.background=bg;
-     label.style.background=bg;
+     d.style.setProperty('--table-color',bg);
+     d.style.setProperty('--border-color',contrastBorderColor(bg));
+     const border=document.createElement('span');
+     border.className='multiplicand-border';
+     border.textContent='×'+i/table;
+     const num=document.createElement('span');
+     num.className='cell-number';
+     num.textContent=String(i);
+     d.appendChild(border);
+     d.appendChild(num);
+   } else {
+     d.textContent=String(i);
    }
-   d.textContent=String(i);
-   wrapper.appendChild(label);
-   wrapper.appendChild(d);
-   grid.appendChild(wrapper);
+   grid.appendChild(d);
  }
 }
 
