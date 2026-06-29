@@ -63,18 +63,23 @@ function render(table){
  fact.textContent=(facts[table]||['Multiples occur every '+table+' numbers.'])[0];
 
  for(let i=1;i<=max;i++){
-   const d=document.createElement('div');
+   const wrapper=document.createElement('div');
+   wrapper.className='cell-wrapper';
    const isMultiple=i%table===0;
+   const d=document.createElement('div');
    d.className='cell '+(isMultiple?'highlight':'dim');
+   const label=document.createElement('span');
+   label.className='multiplicand-label'+(isMultiple?'':' multiplicand-label--empty');
+   label.textContent=isMultiple?'×'+i/table:'';
    if(isMultiple){
-     d.style.background=colorFor(table);
-     const bubble=document.createElement('span');
-     bubble.className='multiplicand-bubble';
-     bubble.textContent='×'+i/table;
-     d.appendChild(bubble);
+     const bg=colorFor(table);
+     d.style.background=bg;
+     label.style.background=bg;
    }
-   d.appendChild(document.createTextNode(String(i)));
-   grid.appendChild(d);
+   d.textContent=String(i);
+   wrapper.appendChild(label);
+   wrapper.appendChild(d);
+   grid.appendChild(wrapper);
  }
 }
 

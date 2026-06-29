@@ -1,32 +1,16 @@
-body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;padding:clamp(8px,2vw,20px);box-sizing:border-box;min-height:100dvh}
+
+body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;padding:20px}
 .container{max-width:1200px;margin:auto;text-align:center}
 .toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:15px}
 button,select{padding:10px 14px;border-radius:8px;border:1px solid #ccc}
-.grid{
-  --grid-rows:10;
-  --chrome:220px;
-  display:grid;
-  grid-template-columns:repeat(10,minmax(0,1fr));
-  gap:clamp(2px,0.5vw,5px);
-  width:min(100%,calc((100dvh - var(--chrome)) * 10 / var(--grid-rows)));
-  margin:0 auto
-}
-.cell{
-  position:relative;
-  aspect-ratio:1;
-  min-width:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:8px;
-  background:#fff;
-  font-weight:bold;
-  font-size:clamp(8px,2.4vw,16px)
-}
-.cell:is(:nth-child(20n+11),:nth-child(20n+12),:nth-child(20n+13),:nth-child(20n+14),:nth-child(20n+15),:nth-child(20n+16),:nth-child(20n+17),:nth-child(20n+18),:nth-child(20n+19),:nth-child(20n+20)){background:#e8ecf1}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.cell-wrapper{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cell{width:100%;position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fff;font-weight:bold}
+.cell-wrapper:is(:nth-child(20n+11),:nth-child(20n+12),:nth-child(20n+13),:nth-child(20n+14),:nth-child(20n+15),:nth-child(20n+16),:nth-child(20n+17),:nth-child(20n+18),:nth-child(20n+19),:nth-child(20n+20)) .cell:not(.highlight){background:#e8ecf1}
 .dim{opacity:.25}
 .highlight{color:white}
-.multiplicand-bubble{position:absolute;top:2px;right:2px;min-width:16px;padding:1px 5px;border-radius:999px;background:rgba(255,255,255,.92);color:#1e293b;font-size:clamp(7px,1.8vw,11px);font-weight:700;line-height:1.2;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.multiplicand-label{min-width:16px;min-height:1.2em;padding:1px 5px;border-radius:999px;color:#fff;font-size:11px;font-weight:700;line-height:1.2;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.multiplicand-label--empty{visibility:hidden}
 .correct{background:#22c55e!important;color:white}
 .wrong{background:#ef4444!important;color:white}
-.fact,.badges,#score{margin:12px;font-size:clamp(14px,2.5vw,18px)}
+.fact,.badges,#score{margin:12px;font-size:18px}
